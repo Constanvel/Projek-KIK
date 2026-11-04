@@ -1,0 +1,59 @@
+import Link from 'next/link';
+import type { ReactNode } from 'react';
+export function DashboardShell({
+  management = false,
+  section,
+  onSection,
+  children,
+}: {
+  management?: boolean;
+  section: string;
+  onSection: (section: string) => void;
+  children: ReactNode;
+}) {
+  const items = management
+    ? ['Ringkasan layanan', 'Waktu tunggu', 'Kinerja poliklinik', 'Laporan']
+    : ['Antrean poli', 'Alur pelayanan', 'Farmasi', 'Riwayat aktivitas'];
+  return (
+    <div className="dashboard">
+      <aside className="dashboard-sidebar">
+        <Link className="brand" href="/">
+          HyTrack
+        </Link>
+        <p className="sidebar-label">{management ? 'MANAJEMEN LAYANAN' : 'RUANG PETUGAS'}</p>
+        <nav aria-label={management ? 'Navigasi manajemen' : 'Navigasi petugas'}>
+          {items.map((item) => (
+            <button
+              key={item}
+              aria-current={item === section ? 'page' : undefined}
+              onClick={() => onSection(item)}
+            >
+              {item}
+            </button>
+          ))}
+        </nav>
+        <div className="sidebar-footer">
+          <strong>RS Harapan Sehat</strong>
+          <p>
+            {management ? 'Manajemen operasional' : 'Dina · Petugas poli'}
+            <br />
+            {management ? 'Akses data agregat' : 'Ruang A-204'}
+          </p>
+          <Link className="button secondary" href="/akun">
+            Kembali ke demo
+          </Link>
+        </div>
+      </aside>
+      <div className="dashboard-body">
+        <header className="dashboard-topbar">
+          <span>{management ? 'Analitik / Ringkasan layanan' : 'Pelayanan / Rawat jalan'}</span>
+          <strong>Data demo · Tidak terhubung</strong>
+          <span>4 November 2026</span>
+        </header>
+        <main id="main" className="dashboard-main">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+}
