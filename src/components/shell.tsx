@@ -13,7 +13,7 @@ export function Shell({ title, subtitle, back, children, hya = false, queue = fa
       {back && <Link className="icon-button back" href={back} aria-label="Kembali"><Icon name="back" /></Link>}
       {hya && <Avatar />}
       <div className="heading"><h1>{title}</h1>{subtitle && <p>{subtitle}</p>}</div>
-      {hya ? <Link href="/kunjungan" className="icon-button close" aria-label="Tutup Hya">×</Link> : !back && <Link href="/notifikasi" className="icon-button" aria-label="Notifikasi"><Icon name="bell" /></Link>}
+      {hya ? <Link href="/kunjungan" className="icon-button close" aria-label="Tutup Hya"><Icon name="close" /></Link> : !back && <Link href="/notifikasi" className="icon-button" aria-label="Notifikasi"><Icon name="bell" /></Link>}
     </header>
     <main id="main" className="page-content">{children}</main>
     {!hya && <nav className="bottom-nav" aria-label="Navigasi utama">{[

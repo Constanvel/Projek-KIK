@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 
 const iconDimensions: Record<string, [number, number]> = {
   arrow: [17.8, 13.8], bell: [13.8, 16.8], home: [19.8, 19.8],
-  ticket: [19.8, 15.8], user: [17.8, 20.8],
+  ticket: [19.8, 15.8], user: [17.8, 20.8], send: [19.8, 17.8], close: [13.8, 13.8],
 };
 export function Icon({ name, className = '' }: { name: string; className?: string }) {
   const [width, height] = iconDimensions[name] ?? [24, 24];
