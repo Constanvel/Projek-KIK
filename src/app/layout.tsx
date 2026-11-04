@@ -14,5 +14,14 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { width: 'device-width', initialScale: 1, themeColor: '#f8f7f1' };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="id"><body><a className="skip-link" href="#main">Lewati ke konten</a><DemoProvider>{children}</DemoProvider></body></html>;
+  return (
+    <html lang="id">
+      <body>
+        <a className="skip-link" href="#main">
+          Lewati ke konten
+        </a>
+        <DemoProvider>{children}</DemoProvider>
+      </body>
+    </html>
+  );
 }

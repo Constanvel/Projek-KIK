@@ -29,23 +29,23 @@ Playwright menjalankan development server lokal secara otomatis. Browser binary 
 
 ## Halaman
 
-| URL | Tampilan |
-| --- | --- |
-| `/` | Beranda pasien |
-| `/poliklinik` | Pencarian poliklinik |
-| `/dokter` | Dokter dan jadwal contoh Penyakit Dalam |
-| `/kunjungan` | Tiket, antrean, laboratorium, farmasi, atau selesai sesuai state |
-| `/check-in` | QR contoh dan konfirmasi simulasi |
-| `/pendamping` | Aktifkan/cabut pratinjau pendamping |
-| `/pantauan` | Tampilan pendamping read-only lokal |
-| `/hya` | Panduan respons terstruktur, bukan AI |
-| `/bantuan` | Pencarian panduan |
-| `/bantuan/check-in` | Panduan check-in |
-| `/bantuan/antrean` | Panduan antrean |
-| `/petunjuk-ruangan` | Teks petunjuk dari desain, tanpa denah palsu |
-| `/akun` | Indeks akun/peran demo; bukan autentikasi |
-| `/petugas` | Dashboard simulasi antrean petugas |
-| `/manajemen` | Statistik agregat contoh, filter, grafik, ekspor CSV |
+| URL                 | Tampilan                                                         |
+| ------------------- | ---------------------------------------------------------------- |
+| `/`                 | Beranda pasien                                                   |
+| `/poliklinik`       | Pencarian poliklinik                                             |
+| `/dokter`           | Dokter dan jadwal contoh Penyakit Dalam                          |
+| `/kunjungan`        | Tiket, antrean, laboratorium, farmasi, atau selesai sesuai state |
+| `/check-in`         | QR contoh dan konfirmasi simulasi                                |
+| `/pendamping`       | Aktifkan/cabut pratinjau pendamping                              |
+| `/pantauan`         | Tampilan pendamping read-only lokal                              |
+| `/hya`              | Panduan respons terstruktur, bukan AI                            |
+| `/bantuan`          | Pencarian panduan                                                |
+| `/bantuan/check-in` | Panduan check-in                                                 |
+| `/bantuan/antrean`  | Panduan antrean                                                  |
+| `/petunjuk-ruangan` | Teks petunjuk dari desain, tanpa denah palsu                     |
+| `/akun`             | Indeks akun/peran demo; bukan autentikasi                        |
+| `/petugas`          | Dashboard simulasi antrean petugas                               |
+| `/manajemen`        | Statistik agregat contoh, filter, grafik, ekspor CSV             |
 
 ## Mencoba flow
 
