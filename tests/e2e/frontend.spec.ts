@@ -72,21 +72,46 @@ test('management filtering, empty state and CSV download', async ({ page }) => {
 for (const width of [320, 375, 412, 768, 1024, 1440]) {
   test(`responsive routes have no overflow at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 960 });
-    for (const route of ['/', '/poliklinik', '/dokter', '/hya', '/bantuan', '/petugas', '/manajemen']) {
+    for (const route of [
+      '/',
+      '/poliklinik',
+      '/dokter',
+      '/hya',
+      '/bantuan',
+      '/petugas',
+      '/manajemen',
+    ]) {
       await page.goto(route);
+      await expect(page.getByRole('heading', { name: 'Memuat HyTrack…' })).toHaveCount(0);
+      await expect(page.locator('h1')).toHaveCount(1);
       await expect(page.locator('h1')).toBeVisible();
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), route).toBe(true);
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+        route,
+      ).toBe(true);
     }
   });
 }
 test('representative pages pass automated accessibility and runtime checks', async ({ page }) => {
   const errors: string[] = [];
-  page.on('pageerror', error => errors.push(error.message));
+  page.on('pageerror', (error) => errors.push(error.message));
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  for (const route of ['/', '/poliklinik', '/dokter', '/hya', '/bantuan', '/petugas', '/manajemen']) {
+  for (const route of [
+    '/',
+    '/poliklinik',
+    '/dokter',
+    '/hya',
+    '/bantuan',
+    '/petugas',
+    '/manajemen',
+  ]) {
     await page.goto(route);
+    await expect(page.getByRole('heading', { name: 'Memuat HyTrack…' })).toHaveCount(0);
+    await expect(page.locator('h1')).toHaveCount(1);
     await expect(page.locator('h1')).toBeVisible();
-    const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
+    const scan = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
+      .analyze();
     expect(scan.violations, route).toEqual([]);
   }
   expect(errors).toEqual([]);
