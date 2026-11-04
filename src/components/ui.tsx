@@ -1,0 +1,22 @@
+import Image from 'next/image';
+import Link from 'next/link';
+import type { ReactNode } from 'react';
+
+export function Icon({ name, className = '' }: { name: string; className?: string }) {
+  return <Image className={`icon ${className}`} src={`/assets/${name}.svg`} alt="" width={24} height={24} aria-hidden="true" />;
+}
+export function Avatar({ large = false }: { large?: boolean }) {
+  return <span className={`avatar ${large ? 'avatar-large' : ''}`}><Image src="/assets/hya-avatar-source.png" alt="" width={400} height={300} /></span>;
+}
+export function ActionLink({ href, children, secondary = false }: { href: string; children: ReactNode; secondary?: boolean }) {
+  return <Link className={`button ${secondary ? 'secondary' : ''}`} href={href}>{children}</Link>;
+}
+export function RowLink({ href, children, detail }: { href: string; children: ReactNode; detail?: string }) {
+  return <Link className="row-link" href={href}><span><strong>{children}</strong>{detail && <small>{detail}</small>}</span><Icon name="arrow" /></Link>;
+}
+export function Notice({ children, tone = 'green' }: { children: ReactNode; tone?: 'green' | 'warning' | 'info' }) {
+  return <div className={`notice ${tone}`}>{children}</div>;
+}
+export function Steps({ items }: { items: { title: string; detail: string }[] }) {
+  return <ol className="steps card">{items.map((item, index) => <li key={item.title}><span className="step-number">{index + 1}</span><div><strong>{item.title}</strong><p className="small muted">{item.detail}</p></div></li>)}</ol>;
+}
