@@ -2,6 +2,7 @@
   "name": "hytrack",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -25,6 +26,7 @@
     "@types/react-dom": "^19.0.0",
     "eslint": "^9.0.0",
     "eslint-config-next": "16.4.5",
+    "prettier": "^3.9.10",
     "typescript": "^5.9.0",
     "vitest": "^4.0.0"
   }
