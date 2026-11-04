@@ -2,8 +2,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
+const iconDimensions: Record<string, [number, number]> = {
+  arrow: [17.8, 13.8], bell: [13.8, 16.8], home: [19.8, 19.8],
+  ticket: [19.8, 15.8], user: [17.8, 20.8],
+};
 export function Icon({ name, className = '' }: { name: string; className?: string }) {
-  return <Image className={`icon ${className}`} src={`/assets/${name}.svg`} alt="" width={24} height={24} aria-hidden="true" />;
+  const [width, height] = iconDimensions[name] ?? [24, 24];
+  return <span className={`icon ${className}`} aria-hidden="true"><Image src={`/assets/${name}.svg`} alt="" width={width} height={height} /></span>;
 }
 export function Avatar({ large = false }: { large?: boolean }) {
   return <span className={`avatar ${large ? 'avatar-large' : ''}`}><Image src="/assets/hya-avatar-source.png" alt="" width={400} height={300} /></span>;
