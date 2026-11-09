@@ -116,3 +116,22 @@ test('representative pages pass automated accessibility and runtime checks', asy
   }
   expect(errors).toEqual([]);
 });
+for (const [width, height] of [
+  [375, 667],
+  [768, 900],
+  [1440, 900],
+]) {
+  test(`Hya bubble is fixed bottom-right above nav at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height });
+    for (const route of ['/', '/poliklinik', '/bantuan']) {
+      await page.goto(route);
+      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+      const fab = await page.locator('.hya-fab').boundingBox();
+      const nav = await page.locator('.bottom-nav').boundingBox();
+      expect(fab && nav).toBeTruthy();
+      expect(width - (fab!.x + fab!.width)).toBeLessThanOrEqual(20);
+      expect(fab!.y + fab!.height).toBeLessThanOrEqual(nav!.y);
+      expect(fab!.x).toBeGreaterThanOrEqual(0);
+    }
+  });
+}
