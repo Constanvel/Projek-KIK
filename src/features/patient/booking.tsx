@@ -12,7 +12,7 @@ export function Clinics() {
     clinic.name.toLowerCase().includes(query.toLowerCase().trim()),
   );
   return (
-    <Shell title="Pilih poliklinik" subtitle="KUNJUNGAN BARU · 1 / 2" back="/">
+    <Shell title="Pilih poliklinik" subtitle="KUNJUNGAN BARU · 1 / 2" back="/" guide="poli">
       <h2>Mau berobat ke mana?</h2>
       <label className="search-field">
         <Icon name="search" />
@@ -25,7 +25,7 @@ export function Clinics() {
       </label>
       <Notice>RS Harapan Sehat · Rawat jalan</Notice>
       <h3>Poliklinik tersedia hari ini</h3>
-      <div className="clinic-list">
+      <div className="clinic-list" data-guide="">
         {filtered.map((clinic) => (
           <RowLink
             key={clinic.name}
@@ -66,7 +66,12 @@ export function DoctorSchedule({ clinic }: { clinic: string }) {
       </Shell>
     );
   return (
-    <Shell title="Dokter & jadwal" subtitle="KUNJUNGAN BARU · 2 / 2" back="/poliklinik">
+    <Shell
+      title="Dokter & jadwal"
+      subtitle="KUNJUNGAN BARU · 2 / 2"
+      back="/poliklinik"
+      guide={isInternal ? 'dokter' : undefined}
+    >
       <Notice>
         {clinic}
         {isInternal ? ' · Gedung A, lantai 2' : ' · Jadwal belum tersedia pada desain'}
@@ -148,6 +153,7 @@ export function DoctorSchedule({ clinic }: { clinic: string }) {
           </section>
           <button
             className="button"
+            data-guide=""
             disabled={date !== '4 Nov'}
             onClick={() => {
               dispatch({

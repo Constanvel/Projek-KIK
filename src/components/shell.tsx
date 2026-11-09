@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Icon, Avatar } from './ui';
 import type { ReactNode } from 'react';
+import { GuideHint, useGuide, type GuideStep } from '@/features/guide/guide';
 
 export function Shell({
   title,
@@ -11,6 +12,7 @@ export function Shell({
   children,
   hya = false,
   queue = false,
+  guide,
 }: {
   title: string;
   subtitle?: string;
@@ -18,8 +20,10 @@ export function Shell({
   children: ReactNode;
   hya?: boolean;
   queue?: boolean;
+  guide?: GuideStep;
 }) {
   const path = usePathname();
+  const { visible: guiding } = useGuide(guide);
   const active =
     path === '/'
       ? 'home'
@@ -27,7 +31,9 @@ export function Shell({
         ? 'user'
         : 'ticket';
   return (
-    <div className={`app-shell ${hya ? 'chat-shell' : ''} ${queue ? 'queue-shell' : ''}`}>
+    <div
+      className={`app-shell ${hya ? 'chat-shell' : ''} ${queue ? 'queue-shell' : ''} ${guiding ? 'guide-active' : ''}`}
+    >
       <div className="demo-banner">Demo frontend · Tidak terhubung ke rumah sakit</div>
       <header className="page-header">
         {back && (
@@ -53,8 +59,14 @@ export function Shell({
         )}
       </header>
       <main id="main" className="page-content">
+        {guide && <GuideHint step={guide} />}
         {children}
       </main>
+      {!hya && (
+        <Link href="/hya" className="hya-fab" aria-label="Tanya Hya">
+          <Avatar large />
+        </Link>
+      )}
       {!hya && (
         <nav className="bottom-nav" aria-label="Navigasi utama">
           {[
@@ -85,7 +97,6 @@ export function HyaHelp() {
         <strong>Perlu bantuan layanan?</strong>
         <small>Tanya Hya lewat tombol di kanan.</small>
       </span>
-      <Avatar large />
     </Link>
   );
 }

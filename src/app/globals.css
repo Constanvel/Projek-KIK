@@ -601,6 +601,66 @@ hr {
   position: relative;
   gap: 8px;
 }
+.guide-hint {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: enter 0.22s ease-out;
+}
+.guide-hint h2 {
+  font-size: 17px;
+}
+.guide-hint p:not(.eyebrow) {
+  line-height: 1.6;
+}
+.guide-progress {
+  display: flex;
+  gap: 4px;
+}
+.guide-progress span {
+  flex: 1;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--border);
+}
+.guide-progress .done {
+  background: var(--primary);
+}
+.guide-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.guide-actions .button {
+  width: auto;
+  min-height: 44px;
+  padding-inline: 24px;
+}
+.guide-active [data-guide] {
+  outline: 3px solid #e9a93b;
+  outline-offset: 4px;
+  animation: guide-pulse 1.6s ease-in-out 3;
+}
+@keyframes guide-pulse {
+  50% {
+    outline-color: transparent;
+  }
+}
+.hya-fab {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: calc(80px + 16px + env(safe-area-inset-bottom));
+  z-index: 11;
+  border-radius: 50%;
+}
+.hya-fab .avatar-large {
+  margin: 0;
+}
 .hya-help strong {
   font-size: 14px;
 }
