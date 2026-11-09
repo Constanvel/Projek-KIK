@@ -56,6 +56,11 @@ export function Shell({
         {children}
       </main>
       {!hya && (
+        <Link href="/hya" className="hya-fab" aria-label="Tanya Hya">
+          <Avatar large />
+        </Link>
+      )}
+      {!hya && (
         <nav className="bottom-nav" aria-label="Navigasi utama">
           {[
             { href: '/', icon: 'home', label: 'Beranda' },
@@ -85,7 +90,6 @@ export function HyaHelp() {
         <strong>Perlu bantuan layanan?</strong>
         <small>Tanya Hya lewat tombol di kanan.</small>
       </span>
-      <Avatar large />
     </Link>
   );
 }
