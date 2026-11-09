@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Shell, HyaHelp } from '@/components/shell';
 import { ActionLink, Avatar, Icon, Notice, RowLink, Steps } from '@/components/ui';
+import { GuideRestart } from '@/features/guide/guide';
 const topics = [
   {
     title: 'Antrean & jadwal dokter',
@@ -55,6 +56,7 @@ export function Help() {
           onChange={(e) => setQuery(e.target.value)}
         />
       </label>
+      <GuideRestart />
       <h3>Panduan yang sering dicari</h3>
       <div className="faq-list">
         {filtered.map((topic) => (

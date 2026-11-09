@@ -34,7 +34,7 @@ export function Visit() {
       </Shell>
     );
   return (
-    <Shell title="Tiket kunjungan" subtitle="RABU, 4 NOVEMBER 2026" back="/">
+    <Shell title="Tiket kunjungan" subtitle="RABU, 4 NOVEMBER 2026" back="/" guide="tiket">
       <Notice>✓ Antrean berhasil diambil · Demo</Notice>
       <section className="card ticket-card">
         <p className="eyebrow">NOMOR ANTREAN ANDA</p>
@@ -48,7 +48,7 @@ export function Visit() {
           Hari ini · {visit.time}
         </p>
       </section>
-      <section className="warning-card">
+      <section className="warning-card" data-guide="">
         <h2 style={{ fontSize: 22 }}>Berangkat sekarang</h2>
         <p>Perjalanan ±25 menit. Check-in paling lambat 08.45.</p>
       </section>
@@ -62,7 +62,9 @@ export function Visit() {
           <small>setelah check-in</small>
         </div>
       </div>
-      <ActionLink href="/check-in">Tampilkan QR check-in</ActionLink>
+      <div data-guide="">
+        <ActionLink href="/check-in">Tampilkan QR check-in</ActionLink>
+      </div>
       <p className="small muted">
         Gedung A, lantai 2 · Meja check-in
         <br />
@@ -83,14 +85,19 @@ export function CheckIn() {
   const [manual, setManual] = useState(false);
   if (!state.visit) return <Visit />;
   return (
-    <Shell title="Check-in kedatangan" subtitle="RS HARAPAN SEHAT" back="/kunjungan">
+    <Shell
+      title="Check-in kedatangan"
+      subtitle="RS HARAPAN SEHAT"
+      back="/kunjungan"
+      guide="checkin"
+    >
       <h2>
         Tunjukkan QR ini
         <br />
         kepada petugas
       </h2>
       <p className="muted">Meja check-in · Gedung A, lantai 2</p>
-      <section className="card qr-card">
+      <section className="card qr-card" data-guide="">
         <h3>A-027 · Siti Aminah</h3>
         <Image
           className="qr-example"
@@ -143,12 +150,12 @@ export function CheckIn() {
 export function Queue() {
   const { dispatch } = useDemo();
   return (
-    <Shell title="Antrean saya" subtitle="RAWAT JALAN · HARI INI" queue>
+    <Shell title="Antrean saya" subtitle="RAWAT JALAN · HARI INI" queue guide="antrean">
       <div className="connection-row">
         <strong>● Data demo lokal</strong>
         <span>Contoh pukul 09.10</span>
       </div>
-      <section className="hero queue-hero">
+      <section className="hero queue-hero" data-guide="">
         <p className="eyebrow">SUDAH CHECK-IN · 08.42</p>
         <h2>Menunggu giliran</h2>
         <div className="ticket-number">A-027</div>
@@ -197,7 +204,7 @@ export function Queue() {
 export function NextService() {
   const { dispatch } = useDemo();
   return (
-    <Shell title="Layanan berikutnya" subtitle="KUNJUNGAN A-027" back="/kunjungan">
+    <Shell title="Layanan berikutnya" subtitle="KUNJUNGAN A-027" back="/kunjungan" guide="layanan">
       <Notice>✓ Pemeriksaan dokter selesai · Contoh 09.32</Notice>
       <h2>
         Selanjutnya, ke
@@ -245,7 +252,7 @@ export function Pharmacy() {
   const { dispatch } = useDemo();
   const [ready, setReady] = useState(false);
   return (
-    <Shell title="Status obat" subtitle="FARMASI RAWAT JALAN" back="/kunjungan">
+    <Shell title="Status obat" subtitle="FARMASI RAWAT JALAN" back="/kunjungan" guide="layanan">
       <Notice>● Data demo farmasi · 10.15</Notice>
       <section className="hero">
         <p className="eyebrow">{ready ? 'OBAT SIAP DIAMBIL' : 'OBAT SEDANG DISIAPKAN'}</p>

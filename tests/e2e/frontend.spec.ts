@@ -116,3 +116,30 @@ test('representative pages pass automated accessibility and runtime checks', asy
   }
   expect(errors).toEqual([]);
 });
+test('onboarding guide follows the flow, can be skipped and reopened without losing the visit', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const hint = page.locator('.guide-hint');
+  await expect(hint).toContainText('LANGKAH 1 DARI 7');
+  await expect(hint).toContainText('Pastikan nama pasien benar');
+  await expect(page.locator('.guide-active [data-guide]')).toHaveCount(2);
+  await page.getByRole('button', { name: 'Mengerti' }).click();
+  await expect(hint).toHaveCount(0);
+  await page.getByRole('link', { name: '+ Ambil antrean' }).click();
+  await expect(hint).toContainText('Pilih poliklinik tujuan');
+  await page.getByRole('link', { name: /^Penyakit Dalam/ }).click();
+  await expect(hint).toContainText('LANGKAH 3 DARI 7');
+  await page.getByRole('button', { name: 'Ambil antrean', exact: true }).click();
+  await expect(hint).toContainText('Perhatikan waktu berangkat');
+  await page.getByRole('button', { name: 'Lewati panduan' }).click();
+  await expect(hint).toHaveCount(0);
+  await page.getByRole('link', { name: 'Beranda', exact: true }).click();
+  await expect(page.getByRole('link', { name: 'Lihat kunjungan' })).toBeVisible();
+  await page.getByRole('button', { name: 'Tampilkan panduan penggunaan' }).click();
+  await page.getByRole('link', { name: 'Kunjungan', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Tiket kunjungan' })).toBeVisible();
+  await expect(hint).toContainText('Perhatikan waktu berangkat');
+  await page.getByRole('link', { name: 'Tampilkan QR check-in' }).click();
+  await expect(hint).toContainText('Tunjukkan QR ke petugas');
+});
