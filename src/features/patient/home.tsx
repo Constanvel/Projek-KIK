@@ -21,7 +21,7 @@ export function Home() {
             <>
               Kunjungan Anda
               <br />
-              A-027
+              {state.visit?.ticket}
             </>
           ) : (
             <>
