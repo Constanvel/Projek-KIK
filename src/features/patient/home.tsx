@@ -4,11 +4,12 @@ import { useState } from 'react';
 import { Shell, HyaHelp } from '@/components/shell';
 import { ActionLink, Icon } from '@/components/ui';
 import { useDemo } from '@/features/demo/demo-provider';
+import { GuideRestart } from '@/features/guide/guide';
 export function Home() {
   const { state } = useDemo();
   const active = state.visit && state.visit.stage !== 'complete';
   return (
-    <Shell title="HyTrack" subtitle="RS Harapan Sehat">
+    <Shell title="HyTrack" subtitle="RS Harapan Sehat" guide={active ? undefined : 'pasien'}>
       <section className="intro">
         <h2>Berobat lebih tenang.</h2>
         <p>Pantau antrean. Datang tepat waktu.</p>
@@ -35,11 +36,15 @@ export function Home() {
             ? `${state.visit?.clinic} · ${state.visit?.doctor}`
             : 'Ambil antrean untuk poliklinik dan dokter pilihan Anda.'}
         </p>
-        <Link className="button white" href={active ? '/kunjungan' : '/poliklinik'}>
+        <Link
+          className="button white"
+          href={active ? '/kunjungan' : '/poliklinik'}
+          data-guide={active ? undefined : ''}
+        >
           {active ? 'Lihat kunjungan' : '+ Ambil antrean'}
         </Link>
       </section>
-      <section className="profile-row">
+      <section className="profile-row" data-guide={active ? undefined : ''}>
         <div>
           <p className="eyebrow">PASIEN TERPILIH · DATA CONTOH</p>
           <h3>Siti Aminah</h3>
@@ -57,6 +62,7 @@ export function Home() {
           <li>Pilih poliklinik dan jadwal dokter.</li>
           <li>Check-in saat tiba di rumah sakit.</li>
         </ol>
+        <GuideRestart />
       </section>
       <Link className="inline-link" href="/bantuan">
         <Icon name="heart" />
