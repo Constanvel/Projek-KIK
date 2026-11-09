@@ -276,8 +276,8 @@ export function NextService() {
   );
 }
 export function Pharmacy() {
-  const { dispatch } = useDemo();
-  const [ready, setReady] = useState(false);
+  const { state, dispatch } = useDemo();
+  const ready = !!state.visit?.medicineReady;
   return (
     <Shell title="Status obat" subtitle="FARMASI RAWAT JALAN" back="/kunjungan" guide="layanan">
       <Notice>● Data demo farmasi · Tidak diperbarui otomatis</Notice>
@@ -324,7 +324,7 @@ export function Pharmacy() {
       <fieldset className="demo-controls">
         <legend>Simulasi frontend</legend>
         {!ready ? (
-          <button className="button secondary" onClick={() => setReady(true)}>
+          <button className="button secondary" onClick={() => dispatch({ type: 'medicineReady' })}>
             Simulasikan obat siap
           </button>
         ) : (

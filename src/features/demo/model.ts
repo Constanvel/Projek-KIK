@@ -6,6 +6,7 @@ export interface DemoVisit {
   time: string;
   ticket: string;
   stage: VisitStage;
+  medicineReady?: boolean;
 }
 export interface DemoState {
   visit: DemoVisit | null;
@@ -16,6 +17,8 @@ export type DemoAction =
   | { type: 'book'; visit: Omit<DemoVisit, 'stage'> }
   | { type: 'advance'; stage: VisitStage }
   | { type: 'companion'; enabled: boolean }
+  | { type: 'medicineReady' }
+  | { type: 'restore'; state: DemoState }
   | { type: 'reset' };
 const transitions: Record<VisitStage, VisitStage[]> = {
   booked: ['waiting'],
@@ -43,8 +46,36 @@ export function demoReducer(state: DemoState, action: DemoAction): DemoState {
         ...state,
         companion: !!state.visit && state.visit.stage !== 'complete' && action.enabled,
       };
+    case 'medicineReady':
+      return state.visit?.stage === 'pharmacy'
+        ? { ...state, visit: { ...state.visit, medicineReady: true } }
+        : state;
+    case 'restore':
+      return action.state;
     case 'reset':
       return initialState;
+  }
+}
+const stages: VisitStage[] = ['booked', 'waiting', 'laboratory', 'pharmacy', 'complete'];
+// Validates sessionStorage data; anything malformed falls back to no visit.
+export function parseStoredState(raw: string | null): DemoState | null {
+  try {
+    const value = JSON.parse(raw ?? 'null');
+    const visit = value?.visit;
+    if (visit === null) return { visit: null, companion: false };
+    const fields = ['clinic', 'doctor', 'date', 'time', 'ticket'] as const;
+    if (!fields.every((key) => typeof visit?.[key] === 'string') || !stages.includes(visit.stage))
+      return null;
+    return {
+      visit: {
+        ...Object.fromEntries(fields.map((key) => [key, visit[key]])),
+        stage: visit.stage,
+        medicineReady: visit.medicineReady === true,
+      } as DemoVisit,
+      companion: value.companion === true && visit.stage !== 'complete',
+    };
+  } catch {
+    return null;
   }
 }
 export const clinics = [

@@ -7,6 +7,7 @@ import {
   doctors,
   hyaReply,
   initialState,
+  parseStoredState,
   servingNumber,
 } from '../../src/features/demo/model';
 import { reportCsv } from '../../src/features/operations/data';
@@ -58,6 +59,31 @@ describe('visit information derived from the chosen schedule', () => {
     expect(servingNumber('B-014')).toBe('B-010');
     expect(checkInCode('A-027')).toBe('HT-842027');
     expect(new Set(doctors.map((doctor) => doctor.ticket)).size).toBe(doctors.length);
+  });
+  it('marks medicine ready only during pharmacy and keeps it through completion', () => {
+    let state = demoReducer(initialState, { type: 'book', visit });
+    expect(demoReducer(state, { type: 'medicineReady' })).toBe(state);
+    for (const stage of ['waiting', 'laboratory', 'pharmacy'] as const)
+      state = demoReducer(state, { type: 'advance', stage });
+    expect(demoReducer(state, { type: 'medicineReady' }).visit?.medicineReady).toBe(true);
+  });
+});
+describe('stored visit parsing', () => {
+  const booked = demoReducer(initialState, { type: 'book', visit });
+  it('round-trips a stored visit without extra fields', () => {
+    const parsed = parseStoredState(JSON.stringify({ ...booked, name: 'Siti Aminah' }));
+    expect(parsed?.visit).toEqual({ ...booked.visit, medicineReady: false });
+    expect(JSON.stringify(parsed)).not.toContain('Siti');
+  });
+  it('rejects malformed or tampered data', () => {
+    expect(parseStoredState('not json')).toBeNull();
+    expect(parseStoredState(null)).toBeNull();
+    expect(parseStoredState(JSON.stringify({ visit: { ...visit, stage: 'admin' } }))).toBeNull();
+    expect(parseStoredState(JSON.stringify({ visit: { clinic: 1 } }))).toBeNull();
+  });
+  it('drops companion access for a completed visit', () => {
+    const done = { visit: { ...visit, stage: 'complete' }, companion: true };
+    expect(parseStoredState(JSON.stringify(done))?.companion).toBe(false);
   });
 });
 describe('structured help', () => {
