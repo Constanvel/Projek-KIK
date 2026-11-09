@@ -142,7 +142,8 @@ summary:focus-visible {
   max-width: 540px;
   margin: auto;
   min-height: 100dvh;
-  padding-bottom: 100px;
+  /* Bottom nav (80) + gap (16) + Hya bubble (76): keeps the last control clear of the bubble. */
+  padding-bottom: calc(172px + env(safe-area-inset-bottom));
 }
 .demo-banner {
   font-size: 10px;
@@ -947,7 +948,6 @@ details p {
 @media (min-width: 768px) {
   .app-shell {
     max-width: 720px;
-    padding-bottom: 110px;
   }
   .bottom-nav,
   .chat-composer {
