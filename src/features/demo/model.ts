@@ -4,6 +4,7 @@ export interface DemoVisit {
   doctor: string;
   date: string;
   time: string;
+  ticket: string;
   stage: VisitStage;
 }
 export interface DemoState {
@@ -52,10 +53,37 @@ export const clinics = [
   { name: 'Anak', doctors: 3, wait: '20–35 menit' },
   { name: 'Saraf', doctors: 1, wait: '40–60 menit' },
 ];
+// Ticket numbers are demo samples; A-027 comes from the Figma design.
 export const doctors = [
-  { name: 'dr. Rina Kusuma, Sp.PD', time: '09.00–12.00', quota: 18 },
-  { name: 'dr. Budi Santoso, Sp.PD', time: '13.00–16.00', quota: 25 },
+  { name: 'dr. Rina Kusuma, Sp.PD', time: '09.00–12.00', quota: 18, ticket: 'A-027' },
+  { name: 'dr. Budi Santoso, Sp.PD', time: '13.00–16.00', quota: 25, ticket: 'B-014' },
 ];
+export const scheduleDays = [
+  { key: '4 Nov', day: 'Rab', label: 'Rabu, 4 November 2026' },
+  { key: '5 Nov', day: 'Kam', label: 'Kamis, 5 November 2026' },
+  { key: '6 Nov', day: 'Jum', label: 'Jumat, 6 November 2026' },
+];
+export function dateLabel(date: string) {
+  return scheduleDays.find((day) => day.key === date)?.label ?? date;
+}
+const clock = (minutes: number) =>
+  `${String(Math.floor(minutes / 60)).padStart(2, '0')}.${String(minutes % 60).padStart(2, '0')}`;
+export const TRAVEL_MINUTES = 25; // design sample, not the patient's real route
+export const CHECK_IN_LEAD_MINUTES = 15;
+// Derived from the doctor's start time, so it can never contradict the schedule.
+export function departure(time: string) {
+  const [hours, minutes] = time.split('–')[0].split('.').map(Number);
+  const checkInBy = hours * 60 + minutes - CHECK_IN_LEAD_MINUTES;
+  return { checkInBy: clock(checkInBy), leaveBy: clock(checkInBy - TRAVEL_MINUTES) };
+}
+export const QUEUE_AHEAD = 3;
+export function servingNumber(ticket: string, ahead = QUEUE_AHEAD) {
+  const [prefix, number] = ticket.split('-');
+  return `${prefix}-${String(Number(number) - ahead - 1).padStart(number.length, '0')}`;
+}
+export function checkInCode(ticket: string) {
+  return `HT-842${ticket.split('-')[1]}`;
+}
 export function hyaReply(question: string, stage?: VisitStage): string {
   if (/medis|sakit|obat|diagnos|resep|dosis/i.test(question))
     return 'Untuk keluhan atau pertanyaan medis, silakan hubungi tenaga kesehatan. Hya hanya membantu informasi layanan rumah sakit.';

@@ -4,6 +4,15 @@ import { useState } from 'react';
 import { Shell, HyaHelp } from '@/components/shell';
 import { ActionLink, Icon, Notice, RowLink, Steps } from '@/components/ui';
 import { useDemo } from '@/features/demo/demo-provider';
+import {
+  CHECK_IN_LEAD_MINUTES,
+  QUEUE_AHEAD,
+  TRAVEL_MINUTES,
+  checkInCode,
+  dateLabel,
+  departure,
+  servingNumber,
+} from '@/features/demo/model';
 
 export function Visit() {
   const { state, dispatch } = useDemo();
@@ -33,24 +42,33 @@ export function Visit() {
         </section>
       </Shell>
     );
+  const { checkInBy, leaveBy } = departure(visit.time);
   return (
-    <Shell title="Tiket kunjungan" subtitle="RABU, 4 NOVEMBER 2026" back="/" guide="tiket">
+    <Shell
+      title="Tiket kunjungan"
+      subtitle={dateLabel(visit.date).toUpperCase()}
+      back="/"
+      guide="tiket"
+    >
       <Notice>✓ Antrean berhasil diambil · Demo</Notice>
       <section className="card ticket-card">
         <p className="eyebrow">NOMOR ANTREAN ANDA</p>
-        <div className="ticket-number">A-027</div>
+        <div className="ticket-number">{visit.ticket}</div>
         <h3>Siti Aminah</h3>
         <hr />
         <h3>{visit.clinic}</h3>
         <p className="muted">
           {visit.doctor}
           <br />
-          Hari ini · {visit.time}
+          {dateLabel(visit.date)} · {visit.time}
         </p>
       </section>
       <section className="warning-card" data-guide="">
-        <h2 style={{ fontSize: 22 }}>Berangkat sekarang</h2>
-        <p>Perjalanan ±25 menit. Check-in paling lambat 08.45.</p>
+        <h2 style={{ fontSize: 22 }}>Berangkat sebelum {leaveBy}</h2>
+        <p>
+          Check-in paling lambat {checkInBy}, {CHECK_IN_LEAD_MINUTES} menit sebelum praktik dimulai.
+          Perjalanan ±{TRAVEL_MINUTES} menit hanya contoh; sesuaikan dengan perjalanan Anda.
+        </p>
       </section>
       <div className="metrics">
         <div>
@@ -84,6 +102,7 @@ export function CheckIn() {
   const { state, dispatch } = useDemo();
   const [manual, setManual] = useState(false);
   if (!state.visit) return <Visit />;
+  const { ticket, time } = state.visit;
   return (
     <Shell
       title="Check-in kedatangan"
@@ -98,7 +117,7 @@ export function CheckIn() {
       </h2>
       <p className="muted">Meja check-in · Gedung A, lantai 2</p>
       <section className="card qr-card" data-guide="">
-        <h3>A-027 · Siti Aminah</h3>
+        <h3>{ticket} · Siti Aminah</h3>
         <Image
           className="qr-example"
           src="/assets/qr-example.svg"
@@ -106,11 +125,11 @@ export function CheckIn() {
           height={232}
           alt="QR contoh kunjungan, tidak valid untuk check-in rumah sakit"
         />
-        <p className="small muted">HT-842027 · QR contoh</p>
+        <p className="small muted">{checkInCode(ticket)} · QR contoh</p>
       </section>
       <Notice tone={state.visit.stage === 'booked' ? 'warning' : 'green'}>
         {state.visit.stage === 'booked'
-          ? 'Belum check-in · Batas contoh 08.45'
+          ? `Belum check-in · Batas contoh ${departure(time).checkInBy}`
           : 'Sudah check-in · Simulasi'}
       </Notice>
       <ol className="plain-list">
@@ -128,7 +147,8 @@ export function CheckIn() {
       </button>
       {manual && (
         <Notice>
-          Nomor contoh: HT-842027. Tunjukkan kepada petugas; tidak berlaku di rumah sakit.
+          Nomor contoh: {checkInCode(ticket)}. Tunjukkan kepada petugas; tidak berlaku di rumah
+          sakit.
         </Notice>
       )}
       {state.visit.stage === 'booked' ? (
@@ -148,18 +168,19 @@ export function CheckIn() {
   );
 }
 export function Queue() {
-  const { dispatch } = useDemo();
+  const { state, dispatch } = useDemo();
+  const { ticket, clinic } = state.visit!;
   return (
     <Shell title="Antrean saya" subtitle="RAWAT JALAN · HARI INI" queue guide="antrean">
       <div className="connection-row">
         <strong>● Data demo lokal</strong>
-        <span>Contoh pukul 09.10</span>
+        <span>Tidak diperbarui otomatis</span>
       </div>
       <section className="hero queue-hero" data-guide="">
-        <p className="eyebrow">SUDAH CHECK-IN · 08.42</p>
+        <p className="eyebrow">SUDAH CHECK-IN</p>
         <h2>Menunggu giliran</h2>
-        <div className="ticket-number">A-027</div>
-        <p className="ahead">3 pasien lagi sebelum Anda</p>
+        <div className="ticket-number">{ticket}</div>
+        <p className="ahead">{QUEUE_AHEAD} pasien lagi sebelum Anda</p>
         <hr />
         <div className="metrics">
           <div>
@@ -167,14 +188,14 @@ export function Queue() {
             <small>perkiraan tunggu</small>
           </div>
           <div>
-            <strong>A-023</strong>
+            <strong>{servingNumber(ticket)}</strong>
             <small>sedang dilayani</small>
           </div>
         </div>
       </section>
       <section className="queue-location">
         <p className="eyebrow">TUNGGU DI SINI</p>
-        <h2>Poli Penyakit Dalam</h2>
+        <h2>Poli {clinic}</h2>
         <p className="muted">Ruang A-204 · Gedung A, lantai 2</p>
         <ActionLink href="/petunjuk-ruangan" secondary>
           Lihat petunjuk ruangan <Icon name="arrow" />
@@ -202,10 +223,16 @@ export function Queue() {
   );
 }
 export function NextService() {
-  const { dispatch } = useDemo();
+  const { state, dispatch } = useDemo();
+  const { ticket } = state.visit!;
   return (
-    <Shell title="Layanan berikutnya" subtitle="KUNJUNGAN A-027" back="/kunjungan" guide="layanan">
-      <Notice>✓ Pemeriksaan dokter selesai · Contoh 09.32</Notice>
+    <Shell
+      title="Layanan berikutnya"
+      subtitle={`KUNJUNGAN ${ticket}`}
+      back="/kunjungan"
+      guide="layanan"
+    >
+      <Notice>✓ Pemeriksaan dokter selesai · Simulasi</Notice>
       <h2>
         Selanjutnya, ke
         <br />
@@ -226,7 +253,7 @@ export function NextService() {
         items={[
           { title: 'Gunakan lift di sebelah kanan', detail: 'Dari ruang A-204, ikuti tanda lift.' },
           { title: 'Turun ke lantai 1', detail: 'Keluar lift, lalu belok kiri.' },
-          { title: 'Lapor di meja laboratorium', detail: 'Tunjukkan tiket A-027.' },
+          { title: 'Lapor di meja laboratorium', detail: `Tunjukkan tiket ${ticket}.` },
         ]}
       />
       <section>
@@ -253,11 +280,13 @@ export function Pharmacy() {
   const [ready, setReady] = useState(false);
   return (
     <Shell title="Status obat" subtitle="FARMASI RAWAT JALAN" back="/kunjungan" guide="layanan">
-      <Notice>● Data demo farmasi · 10.15</Notice>
+      <Notice>● Data demo farmasi · Tidak diperbarui otomatis</Notice>
       <section className="hero">
         <p className="eyebrow">{ready ? 'OBAT SIAP DIAMBIL' : 'OBAT SEDANG DISIAPKAN'}</p>
         <h2>{ready ? 'Silakan ke loket F2' : '15–25 menit'}</h2>
-        <p>{ready ? 'Tunjukkan nomor pengambilan Anda.' : 'Perkiraan siap 10.30–10.40'}</p>
+        <p>
+          {ready ? 'Tunjukkan nomor pengambilan Anda.' : 'Perkiraan contoh setelah resep diterima'}
+        </p>
         <hr />
         <div className="profile-row">
           <strong style={{ fontSize: 38 }}>F-018</strong>
@@ -270,7 +299,7 @@ export function Pharmacy() {
       </section>
       <Steps
         items={[
-          { title: 'Resep diterima', detail: '10.05 · Resep dari dokter diterima.' },
+          { title: 'Resep diterima', detail: 'Resep dari dokter diterima.' },
           { title: 'Obat disiapkan', detail: 'Sedang dikerjakan petugas farmasi.' },
           { title: 'Pemeriksaan akhir', detail: 'Obat diperiksa apoteker.' },
           {

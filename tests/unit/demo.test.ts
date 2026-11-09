@@ -1,11 +1,21 @@
 import { describe, it, expect } from 'vitest';
-import { demoReducer, initialState, hyaReply } from '../../src/features/demo/model';
+import {
+  checkInCode,
+  dateLabel,
+  demoReducer,
+  departure,
+  doctors,
+  hyaReply,
+  initialState,
+  servingNumber,
+} from '../../src/features/demo/model';
 import { reportCsv } from '../../src/features/operations/data';
 const visit = {
   clinic: 'Penyakit Dalam',
   doctor: 'dr. Rina Kusuma, Sp.PD',
   date: '4 Nov',
   time: '09.00–12.00',
+  ticket: 'A-027',
 };
 describe('demo visit transitions', () => {
   it('books a visit without permitting a second active visit', () => {
@@ -36,6 +46,19 @@ describe('demo visit transitions', () => {
     expect(
       demoReducer(demoReducer(initialState, { type: 'book', visit }), { type: 'reset' }),
     ).toEqual(initialState));
+});
+describe('visit information derived from the chosen schedule', () => {
+  it('computes departure from the doctor start time, matching the design for 09.00', () => {
+    expect(departure('09.00–12.00')).toEqual({ checkInBy: '08.45', leaveBy: '08.20' });
+    expect(departure('13.00–16.00')).toEqual({ checkInBy: '12.45', leaveBy: '12.20' });
+  });
+  it('labels dates and derives queue numbers from the ticket', () => {
+    expect(dateLabel('4 Nov')).toBe('Rabu, 4 November 2026');
+    expect(servingNumber('A-027')).toBe('A-023');
+    expect(servingNumber('B-014')).toBe('B-010');
+    expect(checkInCode('A-027')).toBe('HT-842027');
+    expect(new Set(doctors.map((doctor) => doctor.ticket)).size).toBe(doctors.length);
+  });
 });
 describe('structured help', () => {
   it('directs medical questions to professionals', () =>
