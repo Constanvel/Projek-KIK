@@ -651,6 +651,16 @@ hr {
     outline-color: transparent;
   }
 }
+.hya-fab {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: calc(80px + 16px + env(safe-area-inset-bottom));
+  z-index: 11;
+  border-radius: 50%;
+}
+.hya-fab .avatar-large {
+  margin: 0;
+}
 .hya-help strong {
   font-size: 14px;
 }
