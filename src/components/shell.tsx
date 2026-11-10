@@ -77,6 +77,11 @@ export function Shell({
         </Link>
       )}
       {!hya && (
+        <Link href="/hya" className="hya-fab" aria-label="Tanya Hya">
+          <Avatar large />
+        </Link>
+      )}
+      {!hya && (
         <nav className="bottom-nav" aria-label="Navigasi utama">
           {[
             { href: '/', icon: 'home', label: 'Beranda' },
