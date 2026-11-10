@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import { Icon, Avatar } from './ui';
 import type { ReactNode } from 'react';
 import { GuideHint, useGuide, type GuideStep } from '@/features/guide/guide';
+import { useDemo } from '@/features/demo/demo-provider';
 
 export function Shell({
   title,
@@ -24,6 +25,7 @@ export function Shell({
 }) {
   const path = usePathname();
   const { visible: guiding } = useGuide(guide);
+  const { ready } = useDemo();
   const active =
     path === '/'
       ? 'home'
@@ -35,33 +37,45 @@ export function Shell({
       className={`app-shell ${hya ? 'chat-shell' : ''} ${queue ? 'queue-shell' : ''} ${guiding ? 'guide-active' : ''}`}
     >
       <div className="demo-banner">Demo frontend · Tidak terhubung ke rumah sakit</div>
-      <header className="page-header">
-        {back && (
-          <Link className="icon-button back" href={back} aria-label="Kembali">
-            <Icon name="back" />
-          </Link>
-        )}
-        {hya && <Avatar />}
-        <div className="heading">
-          <h1>{title}</h1>
-          {subtitle && <p>{subtitle}</p>}
-        </div>
-        {hya ? (
-          <Link href="/kunjungan" className="icon-button close" aria-label="Tutup Hya">
-            <Icon name="close" />
-          </Link>
-        ) : (
-          !back && (
-            <Link href="/notifikasi" className="icon-button" aria-label="Notifikasi">
-              <Icon name="bell" />
-            </Link>
-          )
-        )}
-      </header>
-      <main id="main" className="page-content">
-        {guide && <GuideHint step={guide} />}
-        {children}
-      </main>
+      {/* Content waits for the stored visit, so it never flashes the wrong state or shifts. */}
+      {!ready ? (
+        <main id="main" className="page-content" aria-busy="true" />
+      ) : (
+        <>
+          <header className="page-header">
+            {back && (
+              <Link className="icon-button back" href={back} aria-label="Kembali">
+                <Icon name="back" />
+              </Link>
+            )}
+            {hya && <Avatar />}
+            <div className="heading">
+              <h1>{title}</h1>
+              {subtitle && <p>{subtitle}</p>}
+            </div>
+            {hya ? (
+              <Link href="/kunjungan" className="icon-button close" aria-label="Tutup Hya">
+                <Icon name="close" />
+              </Link>
+            ) : (
+              !back && (
+                <Link href="/notifikasi" className="icon-button" aria-label="Notifikasi">
+                  <Icon name="bell" />
+                </Link>
+              )
+            )}
+          </header>
+          <main id="main" className="page-content">
+            {guide && <GuideHint step={guide} />}
+            {children}
+          </main>
+        </>
+      )}
+      {!hya && (
+        <Link href="/hya" className="hya-fab" aria-label="Tanya Hya">
+          <Avatar large />
+        </Link>
+      )}
       {!hya && (
         <Link href="/hya" className="hya-fab" aria-label="Tanya Hya">
           <Avatar large />

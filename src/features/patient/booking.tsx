@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Shell } from '@/components/shell';
 import { ActionLink, Icon, Notice, RowLink } from '@/components/ui';
-import { clinics, doctors } from '@/features/demo/model';
+import { clinics, doctors, scheduleDays } from '@/features/demo/model';
 import { useDemo } from '@/features/demo/demo-provider';
 
 export function Clinics() {
@@ -91,10 +91,10 @@ export function DoctorSchedule({ clinic }: { clinic: string }) {
       ) : (
         <>
           <div className="date-grid" role="group" aria-label="Tanggal kunjungan">
-            {['4 Nov', '5 Nov', '6 Nov'].map((value, index) => (
-              <button key={value} aria-pressed={date === value} onClick={() => setDate(value)}>
-                {['Rab', 'Kam', 'Jum'][index]}
-                <strong>{value}</strong>
+            {scheduleDays.map(({ key, day }) => (
+              <button key={key} aria-pressed={date === key} onClick={() => setDate(key)}>
+                {day}
+                <strong>{key}</strong>
               </button>
             ))}
           </div>
@@ -158,7 +158,13 @@ export function DoctorSchedule({ clinic }: { clinic: string }) {
             onClick={() => {
               dispatch({
                 type: 'book',
-                visit: { clinic, doctor: doctor.name, date, time: doctor.time },
+                visit: {
+                  clinic,
+                  doctor: doctor.name,
+                  date,
+                  time: doctor.time,
+                  ticket: doctor.ticket,
+                },
               });
               router.push('/kunjungan');
             }}

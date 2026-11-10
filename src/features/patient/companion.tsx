@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Shell } from '@/components/shell';
 import { ActionLink, Notice } from '@/components/ui';
 import { useDemo } from '@/features/demo/demo-provider';
+import { dateLabel } from '@/features/demo/model';
 export function CompanionAccess() {
   const { state, dispatch } = useDemo();
   const [status, setStatus] = useState('');
@@ -19,8 +20,8 @@ export function CompanionAccess() {
       <p className="muted">Bagikan perkembangan kunjungan, bukan informasi medis Anda.</p>
       <section className="hero">
         <p className="eyebrow">KUNJUNGAN HARI INI</p>
-        <h2 style={{ fontSize: 23 }}>Siti Aminah · A-027</h2>
-        <p className="small">4 November 2026 · RS Harapan Sehat</p>
+        <h2 style={{ fontSize: 23 }}>Siti Aminah · {state.visit.ticket}</h2>
+        <p className="small">{dateLabel(state.visit.date)} · RS Harapan Sehat</p>
       </section>
       <section className="card">
         <h3>Yang bisa dilihat pendamping</h3>
@@ -104,7 +105,7 @@ export function CompanionView() {
                 ? 'LABORATORIUM'
                 : 'MENUNGGU GILIRAN'}
         </p>
-        <div className="ticket-number">A-027</div>
+        <div className="ticket-number">{state.visit.ticket}</div>
         <h3>
           {stage === 'booked'
             ? 'Menunggu kedatangan'

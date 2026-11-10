@@ -143,6 +143,7 @@ test('onboarding guide follows the flow, can be skipped and reopened without los
   await page.getByRole('link', { name: 'Tampilkan QR check-in' }).click();
   await expect(hint).toContainText('Tunjukkan QR ke petugas');
 });
+
 for (const [width, height] of [
   [375, 667],
   [768, 900],
@@ -162,3 +163,103 @@ for (const [width, height] of [
     }
   });
 }
+
+async function bookDoctor(page: Page, doctor: RegExp) {
+  await page.goto('/poliklinik');
+  await page.getByRole('button', { name: 'Lewati panduan' }).click();
+  await page.getByRole('link', { name: /^Penyakit Dalam/ }).click();
+  await page.getByRole('button', { name: doctor }).click();
+  await page.getByRole('button', { name: 'Ambil antrean', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Tiket kunjungan' })).toBeVisible();
+}
+test('visit progress survives a refresh and stores no patient identity', async ({ page }) => {
+  await bookDoctor(page, /dr. Rina/);
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Tiket kunjungan' })).toBeVisible();
+  await expect(page.locator('.ticket-number')).toHaveText('A-027');
+  await page.getByRole('link', { name: 'Tampilkan QR check-in' }).click();
+  await page.getByRole('button', { name: 'Simulasikan konfirmasi petugas' }).click();
+  await page.reload();
+  await expect(page.getByText('Sudah check-in · Simulasi')).toBeVisible();
+  await page.getByRole('link', { name: 'Lihat antrean saya' }).click();
+  await page.getByRole('button', { name: 'Simulasikan pemeriksaan selesai' }).click();
+  await page.getByRole('button', { name: 'Simulasikan lanjut ke farmasi' }).click();
+  await page.getByRole('button', { name: 'Simulasikan obat siap' }).click();
+  await page.reload();
+  await expect(page.getByText('OBAT SIAP DIAMBIL')).toBeVisible();
+  const stored = await page.evaluate(() => sessionStorage.getItem('hytrack-demo-visit') ?? '');
+  expect(stored).toContain('"stage":"pharmacy"');
+  expect(stored).not.toMatch(/Siti|0842/);
+  await page.getByRole('button', { name: 'Simulasikan pengambilan selesai' }).click();
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Kunjungan selesai' })).toBeVisible();
+});
+test('ticket, departure time and queue follow the chosen doctor', async ({ page }) => {
+  await bookDoctor(page, /dr. Budi/);
+  const main = page.locator('main');
+  await expect(page.locator('.ticket-number')).toHaveText('B-014');
+  await expect(main).toContainText('Rabu, 4 November 2026 · 13.00–16.00');
+  await expect(page.getByRole('heading', { name: 'Berangkat sebelum 12.20' })).toBeVisible();
+  await expect(main).toContainText('Check-in paling lambat 12.45');
+  await expect(main).not.toContainText('08.45');
+  await expect(main).not.toContainText('Hari ini');
+  await page.getByRole('link', { name: 'Tampilkan QR check-in' }).click();
+  await expect(main).toContainText('B-014 · Siti Aminah');
+  await expect(main).toContainText('Belum check-in · Batas contoh 12.45');
+  await page.getByRole('button', { name: 'Nomor check-in manual' }).click();
+  await expect(main).toContainText('Nomor contoh: HT-842014.');
+  await page.getByRole('button', { name: 'Simulasikan konfirmasi petugas' }).click();
+  await page.getByRole('link', { name: 'Lihat antrean saya' }).click();
+  await expect(page.locator('.queue-hero .ticket-number')).toHaveText('B-014');
+  await expect(page.locator('.queue-hero')).toContainText('B-010');
+  await expect(main).not.toContainText('A-02');
+});
+for (const width of [375, 768, 1440]) {
+  test(`Hya bubble never covers a control at the end of check-in at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 740 });
+    await bookDoctor(page, /dr. Rina/);
+    await page.getByRole('link', { name: 'Tampilkan QR check-in' }).click();
+    await expect(page.locator('.qr-card')).toBeVisible();
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    const covered = await page.evaluate(() => {
+      const fab = document.querySelector('.hya-fab')!.getBoundingClientRect();
+      return [...document.querySelectorAll('main button, main a, main input')]
+        .filter((element) => {
+          const box = element.getBoundingClientRect();
+          return (
+            box.right > fab.left &&
+            box.left < fab.right &&
+            box.bottom > fab.top &&
+            box.top < fab.bottom
+          );
+        })
+        .map((element) => element.textContent);
+    });
+    expect(covered).toEqual([]);
+  });
+}
+test('first paint and refresh stay stable (CLS ≤ 0.1) with the guide shown', async ({ page }) => {
+  await page.addInitScript(() => {
+    const w = window as unknown as { cls: number };
+    w.cls = 0;
+    new PerformanceObserver((list) => {
+      for (const entry of list.getEntries() as unknown as {
+        value: number;
+        hadRecentInput: boolean;
+      }[])
+        if (!entry.hadRecentInput) w.cls += entry.value;
+    }).observe({ type: 'layout-shift', buffered: true });
+  });
+  const cls = () => page.evaluate(() => (window as unknown as { cls: number }).cls);
+  await page.goto('/');
+  await expect(page.locator('.guide-hint')).toBeVisible();
+  await page.waitForTimeout(1000);
+  expect(await cls()).toBeLessThanOrEqual(0.1);
+  await bookDoctor(page, /dr. Rina/);
+  await page.reload();
+  await expect(page.locator('.ticket-number')).toHaveText('A-027');
+  await page.waitForTimeout(1000);
+  expect(await cls()).toBeLessThanOrEqual(0.1);
+});

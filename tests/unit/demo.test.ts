@@ -1,11 +1,22 @@
 import { describe, it, expect } from 'vitest';
-import { demoReducer, initialState, hyaReply } from '../../src/features/demo/model';
+import {
+  checkInCode,
+  dateLabel,
+  demoReducer,
+  departure,
+  doctors,
+  hyaReply,
+  initialState,
+  parseStoredState,
+  servingNumber,
+} from '../../src/features/demo/model';
 import { reportCsv } from '../../src/features/operations/data';
 const visit = {
   clinic: 'Penyakit Dalam',
   doctor: 'dr. Rina Kusuma, Sp.PD',
   date: '4 Nov',
   time: '09.00–12.00',
+  ticket: 'A-027',
 };
 describe('demo visit transitions', () => {
   it('books a visit without permitting a second active visit', () => {
@@ -36,6 +47,44 @@ describe('demo visit transitions', () => {
     expect(
       demoReducer(demoReducer(initialState, { type: 'book', visit }), { type: 'reset' }),
     ).toEqual(initialState));
+});
+describe('visit information derived from the chosen schedule', () => {
+  it('computes departure from the doctor start time, matching the design for 09.00', () => {
+    expect(departure('09.00–12.00')).toEqual({ checkInBy: '08.45', leaveBy: '08.20' });
+    expect(departure('13.00–16.00')).toEqual({ checkInBy: '12.45', leaveBy: '12.20' });
+  });
+  it('labels dates and derives queue numbers from the ticket', () => {
+    expect(dateLabel('4 Nov')).toBe('Rabu, 4 November 2026');
+    expect(servingNumber('A-027')).toBe('A-023');
+    expect(servingNumber('B-014')).toBe('B-010');
+    expect(checkInCode('A-027')).toBe('HT-842027');
+    expect(new Set(doctors.map((doctor) => doctor.ticket)).size).toBe(doctors.length);
+  });
+  it('marks medicine ready only during pharmacy and keeps it through completion', () => {
+    let state = demoReducer(initialState, { type: 'book', visit });
+    expect(demoReducer(state, { type: 'medicineReady' })).toBe(state);
+    for (const stage of ['waiting', 'laboratory', 'pharmacy'] as const)
+      state = demoReducer(state, { type: 'advance', stage });
+    expect(demoReducer(state, { type: 'medicineReady' }).visit?.medicineReady).toBe(true);
+  });
+});
+describe('stored visit parsing', () => {
+  const booked = demoReducer(initialState, { type: 'book', visit });
+  it('round-trips a stored visit without extra fields', () => {
+    const parsed = parseStoredState(JSON.stringify({ ...booked, name: 'Siti Aminah' }));
+    expect(parsed?.visit).toEqual({ ...booked.visit, medicineReady: false });
+    expect(JSON.stringify(parsed)).not.toContain('Siti');
+  });
+  it('rejects malformed or tampered data', () => {
+    expect(parseStoredState('not json')).toBeNull();
+    expect(parseStoredState(null)).toBeNull();
+    expect(parseStoredState(JSON.stringify({ visit: { ...visit, stage: 'admin' } }))).toBeNull();
+    expect(parseStoredState(JSON.stringify({ visit: { clinic: 1 } }))).toBeNull();
+  });
+  it('drops companion access for a completed visit', () => {
+    const done = { visit: { ...visit, stage: 'complete' }, companion: true };
+    expect(parseStoredState(JSON.stringify(done))?.companion).toBe(false);
+  });
 });
 describe('structured help', () => {
   it('directs medical questions to professionals', () =>

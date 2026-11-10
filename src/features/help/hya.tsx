@@ -57,7 +57,7 @@ export function Hya() {
           </section>
           {state.visit && state.visit.stage !== 'complete' ? (
             <Notice>
-              KUNJUNGAN AKTIF · A-027
+              KUNJUNGAN AKTIF · {state.visit.ticket}
               <br />
               <strong>
                 {state.visit.stage === 'booked'
@@ -67,7 +67,7 @@ export function Hya() {
                     : state.visit.stage === 'laboratory'
                       ? 'Layanan laboratorium'
                       : 'Penyiapan obat'}{' '}
-                · Poli Penyakit Dalam
+                · Poli {state.visit.clinic}
               </strong>
             </Notice>
           ) : (
@@ -92,7 +92,8 @@ export function Hya() {
       ) : (
         <>
           <Notice>
-            {state.visit ? 'A-027 · Poli Penyakit Dalam' : 'Panduan layanan'} · Data demo
+            {state.visit ? `${state.visit.ticket} · Poli ${state.visit.clinic}` : 'Panduan layanan'}{' '}
+            · Data demo
           </Notice>
           <div className="messages" role="log" aria-live="polite" aria-label="Percakapan Hya">
             {messages.map((message) => (
