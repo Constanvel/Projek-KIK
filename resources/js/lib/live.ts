@@ -48,6 +48,8 @@ export function useAction() {
       method,
       data,
       preserveScroll: true,
+      // Keep local UI state (open tab, search, toggles) when the page reloads after an action.
+      preserveState: true,
       onStart: () => setBusy(true),
       onFinish: () => setBusy(false),
     });
