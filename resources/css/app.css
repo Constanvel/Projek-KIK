@@ -1064,3 +1064,44 @@ details p {
     scroll-behavior: auto !important;
   }
 }
+
+/* Added for the Laravel backend: sign-in fields, unread marker, notification list. */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-weight: 600;
+}
+.field-error {
+  color: #9b3b1f;
+  font-size: 12px;
+  font-weight: 600;
+}
+.icon-button.has-unread {
+  position: relative;
+}
+.icon-button.has-unread::after {
+  content: '';
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #bc6748;
+  box-shadow: 0 0 0 2px var(--bg);
+}
+.notification-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.notification-list .unread {
+  border-left: 4px solid var(--primary);
+}
+.share-link {
+  word-break: break-all;
+}
