@@ -133,17 +133,23 @@ class QueueService
                 throw new QueueRuleException('Tidak ada pasien yang menunggu.');
             }
 
-            $next->update(['queue_status' => QueueStatus::Serving, 'called_count' => 1]);
-            $this->stage($next, JourneyStage::Consultation, StageStatus::Active, $by);
-            $this->notify($next, 'called', "Nomor {$next->queue_number} dipanggil.", 'Silakan masuk ke ruang pemeriksaan.');
-
-            return $next;
+            return $this->call($next, $by);
         });
 
         $this->estimator->refresh($doctor->doctor_id, $date);
         $this->notifyUpNext($doctor->doctor_id, $date);
 
         return $called;
+    }
+
+    /** Call one specific waiting patient. Staff use callNext(), which keeps the order. */
+    public function call(Queue $queue, ?Staff $by = null): Queue
+    {
+        return $this->transition($queue, QueueStatus::Serving, function (Queue $queue) use ($by) {
+            $queue->called_count = 1;
+            $this->stage($queue, JourneyStage::Consultation, StageStatus::Active, $by);
+            $this->notify($queue, 'called', "Nomor {$queue->queue_number} dipanggil.", 'Silakan masuk ke ruang pemeriksaan.');
+        });
     }
 
     public function recall(Queue $queue): Queue

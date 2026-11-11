@@ -13,6 +13,9 @@ return [
      */
     'demo_controls' => (bool) env('HYTRACK_DEMO_CONTROLS', false),
 
+    // Password of the accounts created by the demo seeder.
+    'demo_password' => env('HYTRACK_DEMO_PASSWORD', 'hytrack-demo'),
+
     // Booking rules.
     'daily_quota' => (int) env('HYTRACK_DAILY_QUOTA', 30), // tickets per doctor per service date
     'booking_days' => 3,                                   // today plus the next two days
