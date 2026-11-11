@@ -38,7 +38,11 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended($request->user()->role->home());
+        // The intended URL was stored while signed out and may belong to another role.
+        $role = $request->user()->role;
+        $intended = $request->session()->pull('url.intended');
+
+        return redirect($intended && $role->owns(parse_url($intended, PHP_URL_PATH) ?? '/') ? $intended : $role->home());
     }
 
     public function destroy(Request $request): RedirectResponse

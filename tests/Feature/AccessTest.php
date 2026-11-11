@@ -36,6 +36,19 @@ class AccessTest extends TestCase
         }
     }
 
+    public function test_sign_in_returns_to_the_requested_page_only_within_the_role(): void
+    {
+        $staff = Staff::factory()->create()->user;
+        $patient = Patient::factory()->create()->user;
+
+        $this->get('/kunjungan')->assertRedirect('/masuk');
+        $this->post('/masuk', ['username' => $staff->username, 'password' => 'password'])->assertRedirect('/petugas');
+        $this->post('/keluar');
+
+        $this->get('/kunjungan')->assertRedirect('/masuk');
+        $this->post('/masuk', ['username' => $patient->username, 'password' => 'password'])->assertRedirect('/kunjungan');
+    }
+
     public function test_wrong_passwords_and_deactivated_accounts_are_rejected(): void
     {
         $user = Patient::factory()->create()->user;
